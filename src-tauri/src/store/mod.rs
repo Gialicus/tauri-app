@@ -1,16 +1,23 @@
+use std::sync::Arc;
+
 use surrealdb::{
     engine::local::{Db, RocksDb},
     Surreal,
 };
+use tauri::async_runtime::Mutex;
 #[derive(Debug)]
 pub struct SurrealStore {
-    pub db: Surreal<Db>,
+    pub db: Arc<Mutex<Surreal<Db>>>,
 }
 
 impl SurrealStore {
-    pub async fn new(file_path: &str) -> Result<Self, surrealdb::Error> {
-        let db = Surreal::new::<RocksDb>(file_path).await?;
-        db.use_ns("test").use_db("test").await?;
-        Ok(SurrealStore { db })
+    pub async fn new(file_path: &str) -> Self {
+        let db = Surreal::new::<RocksDb>(file_path)
+            .await
+            .expect("Connessionel al db fallita");
+        db.use_ns("test").use_db("test").await.unwrap();
+        let db = Mutex::new(db);
+        let db = Arc::new(db);
+        SurrealStore { db }
     }
 }
