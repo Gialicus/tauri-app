@@ -1,3 +1,4 @@
+use chrono::Utc;
 use tauri::State;
 
 use crate::{
@@ -14,7 +15,12 @@ pub async fn add_note(
     let db = store.db.lock().await;
     let rec: Record = db
         .create("note")
-        .content(Note { title, text })
+        .content(Note {
+            title,
+            text,
+            created_at: Utc::now(),
+            updated_at: Utc::now(),
+        })
         .await
         .unwrap();
     let res = serde_json::to_string(&rec).unwrap();
