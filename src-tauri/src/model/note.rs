@@ -8,3 +8,10 @@ pub struct Note<'a> {
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
 }
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct UpdateNote<'a> {
+    pub title: Option<&'a str>,
+    pub text: Option<&'a str>,
+    pub updated_at: DateTime<Utc>,
+}

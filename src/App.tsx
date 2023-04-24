@@ -12,6 +12,10 @@ function App() {
       path: "/add",
       element: <AddNote></AddNote>,
     },
+    {
+      path: "/edit/:id",
+      element: <AddNote></AddNote>,
+    },
   ]);
   return (
     <div className="container h-100 w-full">

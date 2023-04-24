@@ -14,11 +14,14 @@ export const NoteList = () => {
   const goToAdd = () => {
     navigate("./add", { replace: true });
   };
-  const editItem = (item: Note) => {
-    console.log(item);
+  const gotToEdit = (item: Note) => {
+    navigate("./edit/" + item.id, { replace: true });
   };
   const deleteItem = (item: Note) => {
-    console.log(item);
+    const del = async () => {
+      await invoke("delete_note", { id: item.id });
+    };
+    del();
   };
   useEffect(() => {
     const load = async () => {
@@ -42,13 +45,13 @@ export const NoteList = () => {
       {notes.map((i) => (
         <div className="grid grid-cols-5 gap-4 m-4" key={i.id}>
           <div className="text-secondary text-xl font-bold">{i.title}</div>
-          <div className="text-lg col-span-3 truncate text-ellipsis">
-            {i.text}
+          <div className="col-span-3 tooltip" data-tip={i.text}>
+            <p className="text-lg truncate text-ellipsis">{i.text}</p>
           </div>
           <div className="text-end">
             <button
               className="btn btn-secondary btn-outline btn-circle mx-2"
-              onClick={() => editItem(i)}
+              onClick={() => gotToEdit(i)}
               type="button"
             >
               <BiEdit />
