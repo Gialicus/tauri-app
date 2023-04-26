@@ -19,7 +19,8 @@ fn main() {
             controller::note::get_notes,
             controller::note::get_note,
             controller::note::update_note,
-            controller::note::delete_note
+            controller::note::delete_note,
+            controller::link::add_link
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

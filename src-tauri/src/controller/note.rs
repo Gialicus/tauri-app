@@ -66,8 +66,8 @@ pub async fn update_note(
             let rec: Record = db
                 .update(("note", utils::id::to_surreal_id(id)))
                 .merge(UpdateNote {
-                    title: title,
-                    text: text,
+                    title,
+                    text,
                     updated_at: Utc::now(),
                 })
                 .await
