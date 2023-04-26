@@ -1,6 +1,6 @@
 import { invoke } from "@tauri-apps/api";
 import { useEffect, useState } from "react";
-import { BiAddToQueue, BiEdit, BiEraser } from "react-icons/bi";
+import { BiAddToQueue, BiEdit, BiEraser, BiLink } from "react-icons/bi";
 import { useNavigate } from "react-router-dom";
 
 export interface Note {
@@ -12,10 +12,13 @@ export const NoteList = () => {
   const [notes, setNotes] = useState([] as Note[]);
   const navigate = useNavigate();
   const goToAdd = () => {
-    navigate("./add", { replace: true });
+    navigate("./note/add", { replace: true });
   };
-  const gotToEdit = (item: Note) => {
-    navigate("./edit/" + item.id, { replace: true });
+  const goToEdit = (item: Note) => {
+    navigate("./note/edit/" + item.id, { replace: true });
+  };
+  const goToAddLink = (item: Note) => {
+    navigate("./link/add/" + item.id, { replace: true });
   };
   const deleteItem = (item: Note) => {
     const del = async () => {
@@ -50,14 +53,21 @@ export const NoteList = () => {
           </div>
           <div className="text-end">
             <button
-              className="btn btn-secondary btn-outline btn-circle mx-2"
-              onClick={() => gotToEdit(i)}
+              className="btn btn-secondary btn-outline btn-circle btn-sm"
+              onClick={() => goToEdit(i)}
               type="button"
             >
               <BiEdit />
             </button>
             <button
-              className="btn btn-error btn-outline btn-circle"
+              className="btn btn-info btn-outline btn-circle btn-xs mx-2"
+              onClick={() => goToAddLink(i)}
+              type="button"
+            >
+              <BiLink />
+            </button>
+            <button
+              className="btn btn-error btn-outline btn-circle btn-xs "
               onClick={() => deleteItem(i)}
               type="button"
             >

@@ -8,7 +8,7 @@ export default function AddNote() {
   const [title, setTitle] = useState("");
   const [text, setText] = useState("");
   const navigate = useNavigate();
-  let { id } = useParams();
+  const { id } = useParams();
   if (id) {
     useEffect(() => {
       const load = async () => {

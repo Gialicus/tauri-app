@@ -1,3 +1,4 @@
+import AddLink from "./components/add-link";
 import AddNote from "./components/add-note";
 import { NoteList } from "./components/note-list";
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
@@ -9,12 +10,16 @@ function App() {
       element: <NoteList />,
     },
     {
-      path: "/add",
+      path: "note/add",
       element: <AddNote></AddNote>,
     },
     {
-      path: "/edit/:id",
+      path: "note/edit/:id",
       element: <AddNote></AddNote>,
+    },
+    {
+      path: "link/add/:id",
+      element: <AddLink></AddLink>,
     },
   ]);
   return (
