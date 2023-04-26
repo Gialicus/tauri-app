@@ -55,23 +55,28 @@ pub async fn get_note(id: &str, store: State<'_, SurrealStore>) -> Result<String
 
 #[tauri::command]
 pub async fn update_note(
-    id: &str,
-    title: &str,
-    text: &str,
+    id: Option<&str>,
+    title: Option<&str>,
+    text: Option<&str>,
     store: State<'_, SurrealStore>,
-) -> Result<String, ()> {
+) -> Result<String, &'static str> {
     let db = store.db.lock().await;
-    let rec: Record = db
-        .update(("note", utils::id::to_surreal_id(id)))
-        .merge(UpdateNote {
-            title: Some(title),
-            text: Some(text),
-            updated_at: Utc::now(),
-        })
-        .await
-        .unwrap();
-    let res = serde_json::to_string(&rec).unwrap();
-    Ok(format!("{}", res))
+    match id {
+        Some(id) => {
+            let rec: Record = db
+                .update(("note", utils::id::to_surreal_id(id)))
+                .merge(UpdateNote {
+                    title: title,
+                    text: text,
+                    updated_at: Utc::now(),
+                })
+                .await
+                .unwrap();
+            let res = serde_json::to_string(&rec).unwrap();
+            Ok(format!("{}", res))
+        }
+        None => Err("Mandatory ID"),
+    }
 }
 
 #[tauri::command]
