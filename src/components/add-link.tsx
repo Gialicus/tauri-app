@@ -11,6 +11,7 @@ export default function AddLink() {
   const [links, setLinks] = useState([] as Note[]);
   const [sel, setSel] = useState("");
   async function addLink() {
+    console.log("REL", id, sel);
     await invoke("add_link", { target: sel, source: id });
   }
   useEffect(() => {
@@ -60,7 +61,7 @@ export default function AddLink() {
           </button>
         </div>
       </div>
-      {notes.map((i) => (
+      {links.map((i) => (
         <div className="grid grid-cols-5 gap-4 m-4" key={i.id}>
           <div className="text-secondary text-xl font-bold">{i.title}</div>
           <div className="col-span-3 tooltip" data-tip={i.text}>

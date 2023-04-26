@@ -31,15 +31,17 @@ pub async fn add_link(
 pub async fn get_link(id: &str, store: State<'_, SurrealStore>) -> Result<String, String> {
     let db = store.db.lock().await;
     println!("ID: {}", id);
-    let query = format!("SELECT ->knows->note FROM {}", id,);
+    let query = format!("SELECT *,->knows->note FROM note WHERE id = {};", id);
     println!("QUERY: {}", query);
     let rec = db.query(query).await;
     match rec {
         Ok(mut r) => {
             let result: Result<Vec<Record>, surrealdb::Error> = r.take(0);
-            println!("{:?}", result);
             match result {
-                Ok(v) => Ok(format!("{:?}", serde_json::to_string(&v).unwrap())),
+                Ok(v) => {
+                    println!("{:?}", v);
+                    Ok(format!("{:?}", serde_json::to_string(&v).unwrap()))
+                }
                 Err(e) => Err(format!("{:?}", e)),
             }
         }
