@@ -13,10 +13,9 @@ export default function AddLink() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [notes, setNotes] = useState([] as Note[]);
-  const [links, setLinks] = useState([] as Link[]);
+  const [links, setLinks] = useState([] as Note[]);
   const [sel, setSel] = useState("");
   async function addLink() {
-    console.log("REL", id, sel);
     await invoke("add_link", { target: sel, source: id });
     navigate("../");
   }
@@ -27,7 +26,6 @@ export default function AddLink() {
       setNotes(_notes);
       const linkResponse = await invoke("get_link", { id });
       const _links = JSON.parse(linkResponse as string);
-      console.log(_links);
       setLinks(_links);
     };
     load();
@@ -69,8 +67,8 @@ export default function AddLink() {
       </div>
       {links.map((i) => (
         <div className="grid grid-cols-5 gap-4 m-4" key={i.id}>
-          <div className="text-primary font-bold col-span-2">{i.source}</div>
-          <div className="text-secondary font-bold col-span-2">{i.target}</div>
+          <div className="text-primary font-bold col-span-2">{i.title}</div>
+          <div className="text-secondary font-bold col-span-2">{i.text}</div>
           <div className="text-end">
             <button
               className="btn btn-error btn-outline btn-circle btn-xs "
