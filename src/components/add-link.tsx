@@ -3,16 +3,22 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Note } from "./note-list";
 import { BiArrowBack, BiEdit, BiEraser } from "react-icons/bi";
+export interface Link {
+  id: string;
+  source: string;
+  target: string;
+}
 
 export default function AddLink() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [notes, setNotes] = useState([] as Note[]);
-  const [links, setLinks] = useState([] as Note[]);
+  const [links, setLinks] = useState([] as Link[]);
   const [sel, setSel] = useState("");
   async function addLink() {
     console.log("REL", id, sel);
     await invoke("add_link", { target: sel, source: id });
+    navigate("../");
   }
   useEffect(() => {
     const load = async () => {
@@ -21,8 +27,8 @@ export default function AddLink() {
       setNotes(_notes);
       const linkResponse = await invoke("get_link", { id });
       const _links = JSON.parse(linkResponse as string);
-      const ls = JSON.parse(_links as string);
-      setLinks(ls);
+      console.log(_links);
+      setLinks(_links);
     };
     load();
   }, []);
@@ -63,10 +69,8 @@ export default function AddLink() {
       </div>
       {links.map((i) => (
         <div className="grid grid-cols-5 gap-4 m-4" key={i.id}>
-          <div className="text-secondary text-xl font-bold">{i.title}</div>
-          <div className="col-span-3 tooltip" data-tip={i.text}>
-            <p className="text-lg truncate text-ellipsis">{i.text}</p>
-          </div>
+          <div className="text-primary font-bold col-span-2">{i.source}</div>
+          <div className="text-secondary font-bold col-span-2">{i.target}</div>
           <div className="text-end">
             <button
               className="btn btn-error btn-outline btn-circle btn-xs "

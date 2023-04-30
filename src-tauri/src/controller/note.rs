@@ -4,7 +4,7 @@ use tauri::State;
 use crate::{
     model::{
         note::{Note, UpdateNote},
-        record::Record,
+        record::NoteRecord,
     },
     store::SurrealStore,
     utils,
@@ -17,7 +17,7 @@ pub async fn add_note(
     store: State<'_, SurrealStore>,
 ) -> Result<String, ()> {
     let db = store.db.lock().await;
-    let rec: Record = db
+    let rec: NoteRecord = db
         .create("note")
         .content(Note {
             title,
@@ -34,7 +34,7 @@ pub async fn add_note(
 #[tauri::command]
 pub async fn get_notes(store: State<'_, SurrealStore>) -> Result<String, ()> {
     let db = store.db.lock().await;
-    let rec: Vec<Record> = db.select("note").await.unwrap();
+    let rec: Vec<NoteRecord> = db.select("note").await.unwrap();
     let res = serde_json::to_string(&rec).unwrap();
     Ok(format!("{}", res))
 }
@@ -43,7 +43,7 @@ pub async fn get_notes(store: State<'_, SurrealStore>) -> Result<String, ()> {
 pub async fn get_note(id: &str, store: State<'_, SurrealStore>) -> Result<String, ()> {
     let db = store.db.lock().await;
     let db_id = utils::id::to_surreal_id(id);
-    let rec: Option<Record> = db.select(("note", db_id)).await.unwrap();
+    let rec: Option<NoteRecord> = db.select(("note", db_id)).await.unwrap();
     match rec {
         Some(v) => {
             let v = serde_json::to_string(&v).unwrap();
@@ -63,7 +63,7 @@ pub async fn update_note(
     let db = store.db.lock().await;
     match id {
         Some(id) => {
-            let rec: Record = db
+            let rec: NoteRecord = db
                 .update(("note", utils::id::to_surreal_id(id)))
                 .merge(UpdateNote {
                     title,
@@ -82,7 +82,7 @@ pub async fn update_note(
 #[tauri::command]
 pub async fn delete_note(id: &str, store: State<'_, SurrealStore>) -> Result<String, ()> {
     let db = store.db.lock().await;
-    let rec: Record = db
+    let rec: NoteRecord = db
         .delete(("note", utils::id::to_surreal_id(id)))
         .await
         .unwrap();

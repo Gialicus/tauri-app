@@ -1,6 +1,14 @@
+use chrono::Utc;
+
 use tauri::State;
 
-use crate::{model::record::Record, store::SurrealStore, utils};
+use crate::{
+    model::{
+        link::Link,
+        record::{LinkRecord, NoteRecord},
+    },
+    store::SurrealStore,
+};
 
 #[tauri::command]
 pub async fn add_link(
@@ -9,42 +17,46 @@ pub async fn add_link(
     store: State<'_, SurrealStore>,
 ) -> Result<String, String> {
     let db = store.db.lock().await;
-    let rec = db
-        .query(format!(
-            "RELATE note:{}->knows->note:{} SET time.written = time::now();",
-            utils::id::to_surreal_id(source),
-            utils::id::to_surreal_id(target)
-        ))
-        .await;
-    match rec {
-        Ok(r) => {
-            println!("{}", source);
-            println!("{}", target);
-            println!("{:?}", r);
-            Ok(format!("{}", "OK"))
-        }
-        Err(e) => Err(format!("{:?}", e)),
-    }
+    let rec: LinkRecord = db
+        .create("link")
+        .content(Link {
+            source,
+            target,
+            name: "Ciao",
+            created_at: Utc::now(),
+            updated_at: Utc::now(),
+        })
+        .await
+        .unwrap();
+    let rec = serde_json::to_string(&rec).unwrap();
+    Ok(format!("{}", rec))
 }
 
 #[tauri::command]
 pub async fn get_link(id: &str, store: State<'_, SurrealStore>) -> Result<String, String> {
     let db = store.db.lock().await;
-    println!("ID: {}", id);
-    let query = format!("SELECT *,->knows->note FROM note WHERE id = {};", id);
-    println!("QUERY: {}", query);
-    let rec = db.query(query).await;
-    match rec {
-        Ok(mut r) => {
-            let result: Result<Vec<Record>, surrealdb::Error> = r.take(0);
-            match result {
-                Ok(v) => {
-                    println!("{:?}", v);
-                    Ok(format!("{:?}", serde_json::to_string(&v).unwrap()))
-                }
-                Err(e) => Err(format!("{:?}", e)),
-            }
-        }
-        Err(e) => Err(format!("{:?}", e)),
+    println!("{}", id);
+    let mut result = db
+        .query("SELECT * FROM link WHERE source = $id FETCH source;")
+        .bind(("id", id))
+        .await
+        .unwrap();
+    let result: Vec<LinkRecord> = result.take(0).unwrap();
+    let mut sources = Vec::new();
+    for item in result.iter() {
+        println!("{}", item.source);
+        let source: Option<NoteRecord> = db
+            .query(format!("SELECT * FROM {}", item.source))
+            .await
+            .unwrap()
+            .take(0)
+            .unwrap();
+        dbg!(&source);
+        match source {
+            Some(v) => sources.push(v),
+            None => (),
+        };
     }
+    let response = serde_json::to_string(&sources).unwrap();
+    Ok(format!("{}", response))
 }
